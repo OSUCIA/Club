@@ -16,8 +16,8 @@ General promotions (social media, chalking, etc.). Keep CampusLink
 Coordinate special events, conferences, and workshops. Risk
   management. Report to President/Vice-President.
 
-Training Chair
-######Responsible for helping new members to become acquainted with high
+######Training Chair
+Responsible for helping new members to become acquainted with high
   performance computing and cyberinfrastructure terminology and material.
 
 #####Appointment:
