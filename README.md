@@ -17,3 +17,5 @@ I highly recommend setting up slack on your phone, or atleast setting up emails 
 ------------------
 
 You can contact the OSU Cyberinfrastructure Association at cia@okstate.edu
+
+<iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23cccccc&amp;src=s5pu1o3ml5grrfft4k0r24h358%40group.calendar.google.com&amp;color=%232F6309&amp;ctz=America%2FChicago" style="border:solid 1px #777" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
