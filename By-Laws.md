@@ -57,9 +57,19 @@ Club Browser
 
 * Chrome
 
-
-
 ##Section III
+
+###Membership Fees
+
+A membership fee of $5 must be paid per academic year in order to be considered a voting member of the club.
+
+###Spending of the Membership Fee
+
+* Membership fees will be earmarked by the treasurer within the general funds.  
+* The recommended use for these funds is to provide a $5 discount on club shirts, etc.  
+* In order to spend this money for a purpose other than the recommended, a supermajority vote of all voting members of the club must be attained.  
+
+##Section IV
 
 ###Other
 
