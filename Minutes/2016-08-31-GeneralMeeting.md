@@ -5,9 +5,9 @@ date:   2016-08-31 18:00:00
 excerpt: "Voted on membership fees, attendance requirements, and discussed goals"
 ---
 
-##Cyberinfrastructure Association
+## Cyberinfrastructure Association
 
-###Meeting Agenda
+### Meeting Agenda
 
 1. Call to Order  
 
