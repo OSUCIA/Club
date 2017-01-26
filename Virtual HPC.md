@@ -2,24 +2,25 @@
 title: Virtual HPC
 ---
 
-###Prerequisites
 
-####Desktop or laptop with 
+### Prerequisites
+
+#### Desktop or laptop with 
 
   * An Intel-compatible processor with 2 or more cores
   * At least 4 GB RAM
   * At least 20 GB free disk space
 
-####Download Lubuntu (16.04, 64-bit version)  
+#### Download Lubuntu (16.04, 64-bit version)  
 
 http://tiger.hpc.okstate.edu/lubuntu-16.04.1-alternate-amd64.iso  
 Or http://cdimages.ubuntu.com/lubuntu/releases/xenial/release/lubuntu-16.04-alternate-amd64.iso  
 md5sum:
   * c773824ab270455471a9086ee29242eb *lubuntu-16.04.1-alternate-amd64.iso  
 
-####Download & Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
+#### Download & Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
 
-#Step One: Setup VM for master node
+# Step One: Setup VM for master node
 
 Create VM / Configure virtual hardware  
 New VM  
@@ -354,7 +355,7 @@ From this point forward we can do everything from the master node, `node0`.
     mpirun -np 2 -host node0,node1 ./hello_world_mpi
     ```
 
-##GalaxSee
+## GalaxSee
 This is a slightly more fun program.
 
  1. For this one we need to install a new program that GalaxSee uses.  
@@ -405,26 +406,26 @@ This is a slightly more fun program.
     make
     ```
     
-###To run the program on just one node
+### To run the program on just one node
 
 ```bash
 mpirun -np 1 -host node0 ./GalaxSee 1000 5.5 10000.0 1
 ```
 
-###To run on two nodes
+### To run on two nodes
 
 ```bash
 mpirun -np 2 -host node0,node1 ./GalaxSee 1000 5.5 50000.0 1
 ```
 
-###To run the node on even more nodes
+### To run the node on even more nodes
 
 Just increase the number after `-np`, and keep adding more node names to the list of nodes. You have 8 nodes right now.
 
-####Try opening a terminal and starting the `top` command on the slave node(s) before starting GalaxSee on the master node. You should see a GalaxSee process appear in the list of processes and disappear when the program finishes.
+#### Try opening a terminal and starting the `top` command on the slave node(s) before starting GalaxSee on the master node. You should see a GalaxSee process appear in the list of processes and disappear when the program finishes.
 
 
-#TinyTitan Stuff
+# TinyTitan Stuff
 
 ## (Optional) Connect Xbox360 Controller. 
 
