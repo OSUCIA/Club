@@ -1,5 +1,5 @@
 ---
-title: Creating Virtual Clusters
+title: Virtual HPC
 ---
 
 ###Prerequisites
@@ -23,7 +23,7 @@ md5sum:
 
 Create VM / Configure virtual hardware  
 New VM  
-```
+```text
 Name: node0
 Type: Linux
 Version: Ubuntu 64-bit
@@ -37,7 +37,7 @@ File location and size
 Create
 ```
 Open settings for the VM
-```
+```text
 Network
 	Adapter 1
 		Enabled
@@ -53,7 +53,7 @@ Should be prompted for startup disk, if not click Devices menu → CD/DVD Device
 
 
 Linux Installation  
-```
+```text
 Choose English
 Choose Install Lubuntu
 Installation language: English (again, default)
@@ -92,12 +92,12 @@ First, you have to update Lubuntu's lists of the most recent versions of the pro
 Second, you have Lubuntu use this list to automatically download the newest versions of all of the installed packages and update them.  
 In order to run these, we have to get administrative privileges. We do this by starting the command with `sudo` - this tells the terminal to run the command as "root", which is Linux's version of Administrator.  
 The command itself uses `apt-get` which is the program that we'll use to update all of the files on this system.
-```
+```bash
 sudo apt-get update
 sudo apt-get upgrade
 ```
 Now we'll use the `apt-get` command to actually get and application - or in this case 9 of them at once! Each name you see after `install` is a different program that we're asking to be installed.
-```
+```bash
 sudo apt-get install nano vim curl openssh-server nfs-kernel-server build-essential git mpich mpich-doc
 ```
 
@@ -106,7 +106,7 @@ Above we installed two different network adapters, one that connects to the inte
 Now we need to configure the "VM only" adapter to talk to all of the other machines.  
  1. First figure out the device name for the network adapter using the NetworkManager Command Line Interface `nmcli`.
  
-    ```
+    ```bash
     nmcli device
     ```
     The device you want will probably be in red; I got “enp0s8”  
@@ -117,7 +117,7 @@ Now we need to configure the "VM only" adapter to talk to all of the other machi
     Next we tell it the `type` of connection is `ethernet`, and give it an `ipv4` address of `192.168.13.0/24`  
     Finally, we pass it `gw4` to tell it the **g**ate**w**ay for ipv**4** is its own ipv4 address that we just told it.
     
-    ```
+    ```bash
     sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.0/24 gw4 192.168.13.0
     ````
  3. Give this network interface a lower priority so the system doesn’t try to use it for internet traffic
@@ -125,39 +125,39 @@ Now we need to configure the "VM only" adapter to talk to all of the other machi
     We have to tell it the `id` of the cluster, which is the con-name we gave it above: `cluster`.
     Finally we tell it that we want to modify the `ipv4.route-metric` by setting it to 101. This tells Lubuntu to prioritize this network less that the direct connection to the internet.
     
-    ```
+    ```bash
     sudo nmcli c modify id cluster ipv4.route-metric 101
     ```
 
 ### Setup nfs share
  1. Use `mkdir` to **m**a**k**e the **dir**ectory that we'll share. We're naming it `shared`, and placing it in the root directory.  
     
-    ```
+    ```bash
     sudo mkdir /shared
     ```
  2. Now we use `chown` to **ch**ange the **own**ership of the directory we made. This just makes sure it is owned by our user (`pi`) on our machine (`pi`).  
     
-    ```
+    ```bash
     sudo chown pi:pi /shared
     ```
  3. Lets make a test file on this virtual machine, then we can see if it appears on the others.
     We'll tell the shell to `echo` our sentence into (`>`) a new file in our `shared` folder, called `test`.
     
-    ```
+    ```bash
     echo “My icebox is full of lagomorphs!” > /shared/test.txt
     ```
  4. Finally lets configure the settings of how to share the files in our `shared` folder.  
     To do this we need to add line to the file `/etc/exports`: `/shared 192.168.13.0/24(rw,no_root_squash,async,no_subtree_check)`  
     You can do this with either `nano` or `vim`, but we'll use `nano`  
     
-    ```
+    ```bash
     sudo nano /etc/exports
     ```
     
     Make your changes and press ctrl-x, press y to save your changes, and press enter to keep the same filename.  
     We also need to update nsf to use these new settings. We do this by `export`ing the settings. The `ra` flags tell it to update all of its settings, and remove any invalid kernels and do generaly cleanup.
     
-    ```
+    ```bash
     sudo exportfs -ra
     ```
 
@@ -166,13 +166,13 @@ Our next step is to tell Lubuntu what the IP addresses of all of the nodes are. 
 
 To use `nano` to do this you'll run  
 
-```
+```bash
 sudo nano /etc/hosts
 ```  
 
 Then you'll add these to the file:  
 
-```
+```text
 192.168.13.0	node0
 192.168.13.1	node1
 192.168.13.2	node2
@@ -190,7 +190,7 @@ The way our nodes talk to eachother is through a secure communication method cal
 To solve this we'll generate an SSH key that doesn't have a password, and just use that key for each node's communication.  
 To do this we use `ssh-keygen` and tell it the `t`ype of key we want is `rsa`, which is to say a key generated with an rsa algorithm.
 
-```
+```bash
 ssh-keygen -t rsa
 ```  
 
@@ -199,7 +199,7 @@ Now we want to take the keys generated and add them to our authorized keys list.
 First we use `cat`, which in this usage just prints the contents of the file you give it - we'll give it `~/.ssh./id_rsa.pub`.  
 Now that we're printing the keys, lets tell the console to output to our authorized keys list and just add it to that file. This is done by using `>>` to indicate we want to append the information to a file, and `~/.ssh/authorized_keys` is the location we want to add it to.
 
-```
+```bash
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 ```
 
@@ -207,7 +207,7 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 
 ## Run through the above process to setup all of the slave nodes.
 
-```
+```text
 Setup VM(s) for slave node(s)
 Create VM / Configure virtual hardware
 Follow procedure for master node substituting “node1” (or whatever number) for “node0”.
@@ -220,7 +220,7 @@ Open terminal
 
 ### Install updates and needed packages
 
-```
+```bash
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install nano vim curl openssh-server mpich mpich-doc nfs-common
@@ -230,7 +230,7 @@ sudo apt-get install nano vim curl openssh-server mpich mpich-doc nfs-common
 
 This time we'll run it almost the same as above, but we won't have the same IP address for the node as for the gateway. We want this node to use node0 as the gateway, so we input the IP for node0 after `gw4`.
 
-```
+```bash
 sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.1/24 gw4 192.168.13.0
 sudo nmcli c modify id cluster ipv4.route-metric 101
 ```
@@ -238,7 +238,7 @@ sudo nmcli c modify id cluster ipv4.route-metric 101
 ### Make sure the internal cluster network is working
 
 To do this we'll `ping` the master node, if the master node responds we're good to go. If not, make sure you didn't skip any steps above. If you're in the training session and this doesn't work, now is a good time to put up your red sticky.
-```
+```bash
 ping 192.168.13.0
 ```
 
@@ -246,14 +246,14 @@ ping 192.168.13.0
 
 We need to get access to that shared folder on all of the virtual machines, so first we **m**a**k**e the **dir**ectory on this machine, then we `mount` the directory from the master node. This will keep this folder the same across all of the nodes.
 
-```
+```bash
 sudo mkdir /shared
 sudo mount 192.168.13.0:/shared /shared
 ```
 
 Use `ls` to look for /shared/test.txt to see if the mount is good. If you don't see the file, again make sure you didn't skip any steps on accident. If you do see the file, use `cat` to see if the correct sentence is in the file.
 
-```
+```bash
 ls /shared/text.txt
 cat /shared/text.txt
 ```
@@ -263,20 +263,20 @@ cat /shared/text.txt
 We do this by editing the file that Lubuntu checks to see if there are any external filesystems to mount when it boots up.  
 Add line to `/etc/fstab`: `192.168.13.0:/shared  /shared  nfs  rw,noatime,hard,intr,vers=3  0 0`
 
-```
+```bash
 nano /etc/fstab
 ```
 
 Then just copy the line above into the file and close it like the last time we used `nano`.  
 Now we'll reboot
 
-```
+```bash
 sudo reboot
 ```
 
 Log in and make sure that /shared is mounted by again running `ls`
 
-```
+```bash
 ls /shared/text.txt
 ```
 
@@ -284,7 +284,7 @@ ls /shared/text.txt
 
 Complete this just like how we did on node0  
 
-```
+```text
 192.168.13.0	node0
 192.168.13.1	node1
 192.168.13.2	node2
@@ -302,7 +302,7 @@ Now we have to make sure each node has the ssh key for node0, so that they can c
 We'll do this using `scp` or **s**ecure **c**o**p**y. We use scp to make sure no one can listen in on the conversation and copy the key. It's not really necessary in this situation, but it's a good practice.  
 When we use scp, we'll tell it that we're copying an entire di**r**ectory with `-r` - in this case we're copying from `node0`. We can just use the name because we set up all of the `/etc/hosts/` entries above. Then we give it the host `node0` and the file `~/.ssh`.
 
-```
+```bash
 scp -r node0:~/.ssh ~
 ```
 
@@ -317,31 +317,31 @@ From this point forward we can do everything from the master node, `node0`.
 
  1. **C**hange **d**irectories into the `shared` directory.
     
-    ```
+    ```bash
     cd /shared
     ```
     
     Now you're operating from inside the folder we have being shared to all of the nodes.  
  2. **M**a**k**e the **dir**ectory `hello_world` in this directory.  
     
-    ```
+    ```bash
     mkdir hello_world
     ```
  3. **C**hange **d**irectories into the `hello_world` directory.  
     
-    ```
+    ```bash
     cd hello_world
     ```
  4. Download the programs we'll use to test.  
     We'll do this by using `wget` to download the files from a url.  
     
-    ```
+    ```bash
     wget https://github.com/OSU-HPCC/example_submission_scripts/raw/master/compiling_and_running/mpi/makefile
     wget https://github.com/OSU-HPCC/example_submission_scripts/raw/master/compiling_and_running/mpi/hello_world_mpi.c
     ```
  5. Use the program `make` to automatically compile the files your just downloaded.  
  
-    ```
+    ```bash
     make
     ```
  6. Run the program!  
@@ -350,7 +350,7 @@ From this point forward we can do everything from the master node, `node0`.
     Then we tell it which two nodes will `host` the program.  
     Finally we tell it the location of the program itself, which is `./hello_world_mpi`
     
-    ```
+    ```bash
     mpirun -np 2 -host node0,node1 ./hello_world_mpi
     ```
 
@@ -360,38 +360,38 @@ This is a slightly more fun program.
  1. For this one we need to install a new program that GalaxSee uses.  
     Again, we'll use `apt-get install` to get the program.
     
-    ```
+    ```bash
     sudo apt-get install libx11-dev
     ```
     
  2. Make sure you're in the `shared` folder again.
     
-    ```
+    ```bash
     cd /shared
     ```
     
  3. Download the GalaxSee program itself using `wget` again.
     
-    ```
+    ```bash
     wget https://www.shodor.org/refdesk/Resources/Tutorials/MPIExamples/Gal.tgz
     ```
  
  4. Now we have to uncompress the program, because it's all stored in Gal.tgz but we need access to the files.  
     We do this with the `tar` command, and use a small slew of flags to tell it to extract it to the current folder.  
     
-    ```
+    ```bash
     tar -zxvf Gal.tgz
     ```
     
  5. **C**hange **d**irectories into the new folder that was made.
     
-    ```
+    ```bash
     cd Gal
     ```
  6. Modify the `Makefile` to compile the program to work on our particular cluster setup.  
     To do this with `nano` use
     
-    ```
+    ```bash
     nano Makefile
     ```
     
@@ -401,19 +401,19 @@ This is a slightly more fun program.
 	  Change `/opt/mpich/lib` to `/usr/lib/mpich` in the LDFLAGS definition.
  7. Compile the program.
     
-    ```
+    ```bash
     make
     ```
     
 ###To run the program on just one node
 
-```
+```bash
 mpirun -np 1 -host node0 ./GalaxSee 1000 5.5 10000.0 1
 ```
 
 ###To run on two nodes
 
-```
+```bash
 mpirun -np 2 -host node0,node1 ./GalaxSee 1000 5.5 50000.0 1
 ```
 
@@ -431,14 +431,14 @@ Just increase the number after `-np`, and keep adding more node names to the lis
 If you don’t have a controller or can’t get it connected, you can still do everything with your keyboard and mouse.  
 If running linux on your physical host (i.e. desktop or laptop) add yourself to the group `vboxusers`. 
 
-```
+```bash
 sudo usermod --groups vboxusers --append username
 ```
 
 Log out and back in, or do some hacky stuff to get your groups reevaluated and start virtualbox from command line (e.g. `newgrp vboxusers; newgrp originalgroup; virtualbox &`).  
 
 Edit settings for node0 in VirtualBox
-```
+```text
 	USB
 		Create New Filter
 		Edit the filter
@@ -454,7 +454,7 @@ Log into node0
 Start terminal  
 Check to see if the VM sees the Xbox360 controller  
 
-```
+```bash
 lsusb
 ```
 
@@ -465,15 +465,15 @@ On the slave nodes run: `sudo apt-get install lubglew1.13 libglfw3`
 
 ## Install TinyTitan programs
 
-```
+```bash
 cd /shared
 mkdir TinyTitan
 cd TinyTitan
 git clone https://github.com/TinyTitan/SPH
 cd SPH
 cp makefile_jetson makefile_lubuntu
-#sudo apt-get install pkg-config
-#pkg-config glfw3 --libs --cflags
+sudo apt-get install pkg-config
+pkg-config glfw3 --libs --cflags
 nano makefile_lubuntu
 ```
 
@@ -481,19 +481,19 @@ Add `-L/usr/lib/x86_64-linux-gnu` to the CLIBS definition.
 Change `-lglfw3` to `-lglfw`.  
 Add `liquid_gl.c` into the compile line before `mover_gl.c`.  
 
-```
+```bash
 make -f makefile_lubuntu
 ```
 
 ## (Optional) Start the Xbox controller driver
 
-```
+```bash
 sudo xboxdrv --mouse --axismap -Y1=Y1 --config /shared/TinyTitan/SPH/controller_2.cnf --silent &
 ```
 
 ## Run SPH with two threads (the absolute minimum; one for display and one for computation)
 
-```
+```bash
 mpirun -np 2 -hosts node0,node1 bin/sph.out
 ```
 
@@ -517,7 +517,7 @@ Create internal network (call it “Cluster”)
 
 To make sudo not require a password:  
 
-```
+```bash
 sudo echo “pi ALL=(ALL) NOPASSWD: ALL” > /etc/sudoers.d/pi_nopasswd
 ```  
 
