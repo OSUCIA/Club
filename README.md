@@ -1,10 +1,15 @@
 ---
 ---
 
-# Club
-This is the Oklahoma State University Cyberinfrastructure Association's webpage.  
+# OSU Cyberinfrastructure Association
+*guiding educational and networking opportunities for OSU students interested in cyberinfrastructure*  
 
 &nbsp;  
+
+## If you're interested in our February 2nd Virtual Cluster Session,
+### visit the "Virtual HPC" tab at the top of the page.
+
+&nbsp;
 
 ### Join our Slack!  
 1. Go to our [Slack webpage](http://osucia.slack.com).
