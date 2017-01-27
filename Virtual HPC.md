@@ -2,6 +2,14 @@
 title: Virtual HPC
 ---
 
+# Before Arriving  
+
+#### (Or just do it now)  
+
+[Download VirtualBox as below](https://www.virtualbox.org/wiki/Downloads)  
+[Download this zip file](https://drive.google.com/open?id=0B3Imkw3eMToZOWszSmJWbXU0QnM)  
+The file contains some premade virtual machines so that we don't have to go through the installation process - it takes up too much time.  
+Unzip the zip file.  
 
 ### Prerequisites
 
@@ -255,7 +263,7 @@ sudo mount 192.168.13.13:/shared /shared
 Use `ls` to look for /shared/test.txt to see if the mount is good. If you don't see the file, again make sure you didn't skip any steps on accident. If you do see the file, use `cat` to see if the correct sentence is in the file.
 
 ```bash
-ls /shared/text.txt
+ls /shared
 cat /shared/text.txt
 ```
 
@@ -265,7 +273,7 @@ We do this by editing the file that Lubuntu checks to see if there are any exter
 Add line to `/etc/fstab`: `192.168.13.13:/shared  /shared  nfs  rw,noatime,hard,intr,vers=3  0 0`
 
 ```bash
-nano /etc/fstab
+sudo nano /etc/fstab
 ```
 
 Then just copy the line above into the file and close it like the last time we used `nano`.  
@@ -278,7 +286,7 @@ sudo reboot
 Log in and make sure that /shared is mounted by again running `ls`
 
 ```bash
-ls /shared/text.txt
+ls /shared
 ```
 
 ### Add /etc/hosts entries
@@ -501,7 +509,7 @@ mpirun -np 2 -hosts node0,node1 bin/sph.out
 #### Mouse and xbox controller are working but menu (sometimes?) doesn’t appear when hitting start button on xbox controller. Esc key on keyboard works. Move cursor over the Terminal option and hit the A key on either the keyboard or xbox controller to exit. The L key toggles between liquid and particle view (which color codes the individual threads).
 
 
-#Notes
+# Notes
 
 Same /etc/hosts file on all nodes  
 Same user (with same UID) on all nodes  
