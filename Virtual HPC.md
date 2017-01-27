@@ -115,11 +115,11 @@ Now we need to configure the "VM only" adapter to talk to all of the other machi
     We pass `nmcli` the `c` flag, to indicate we're wanting to modify a 'c'onnection.  
     Then we tell it we want to `add` a connection named (`con-name`) `cluster`  
     We then give it the `ifname` (**i**nter**f**ace **name**), which is the name fo the devide we found above.  
-    Next we tell it the `type` of connection is `ethernet`, and give it an `ipv4` address of `192.168.13.0/24`  
+    Next we tell it the `type` of connection is `ethernet`, and give it an `ipv4` address of `192.168.13.13/24`  
     Finally, we pass it `gw4` to tell it the **g**ate**w**ay for ipv**4** is its own ipv4 address that we just told it.
     
     ```bash
-    sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.0/24 gw4 192.168.13.0
+    sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.13/24 gw4 192.168.13.13
     ````
  3. Give this network interface a lower priority so the system doesn’t try to use it for internet traffic
     Again we're dealing with a `c`onnection, but this time we're `modify`-ing it.
@@ -148,7 +148,7 @@ Now we need to configure the "VM only" adapter to talk to all of the other machi
     echo “My icebox is full of lagomorphs!” > /shared/test.txt
     ```
  4. Finally lets configure the settings of how to share the files in our `shared` folder.  
-    To do this we need to add line to the file `/etc/exports`: `/shared 192.168.13.0/24(rw,no_root_squash,async,no_subtree_check)`  
+    To do this we need to add line to the file `/etc/exports`: `/shared 192.168.13.13/24(rw,no_root_squash,async,no_subtree_check)`  
     You can do this with either `nano` or `vim`, but we'll use `nano`  
     
     ```bash
@@ -174,7 +174,7 @@ sudo nano /etc/hosts
 Then you'll add these to the file:  
 
 ```text
-192.168.13.0	node0
+192.168.13.13	node0
 192.168.13.1	node1
 192.168.13.2	node2
 192.168.13.3	node3
@@ -232,7 +232,7 @@ sudo apt-get install nano vim curl openssh-server mpich mpich-doc nfs-common
 This time we'll run it almost the same as above, but we won't have the same IP address for the node as for the gateway. We want this node to use node0 as the gateway, so we input the IP for node0 after `gw4`.
 
 ```bash
-sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.1/24 gw4 192.168.13.0
+sudo nmcli c add con-name cluster ifname enp0s8 type ethernet ip4 192.168.13.1/24 gw4 192.168.13.13
 sudo nmcli c modify id cluster ipv4.route-metric 101
 ```
 
@@ -240,7 +240,7 @@ sudo nmcli c modify id cluster ipv4.route-metric 101
 
 To do this we'll `ping` the master node, if the master node responds we're good to go. If not, make sure you didn't skip any steps above. If you're in the training session and this doesn't work, now is a good time to put up your red sticky.
 ```bash
-ping 192.168.13.0
+ping 192.168.13.13
 ```
 
 ### Mount the folder we shared with nsf
@@ -249,7 +249,7 @@ We need to get access to that shared folder on all of the virtual machines, so f
 
 ```bash
 sudo mkdir /shared
-sudo mount 192.168.13.0:/shared /shared
+sudo mount 192.168.13.13:/shared /shared
 ```
 
 Use `ls` to look for /shared/test.txt to see if the mount is good. If you don't see the file, again make sure you didn't skip any steps on accident. If you do see the file, use `cat` to see if the correct sentence is in the file.
@@ -262,7 +262,7 @@ cat /shared/text.txt
 ## Set the nfs share to mount automatically
 
 We do this by editing the file that Lubuntu checks to see if there are any external filesystems to mount when it boots up.  
-Add line to `/etc/fstab`: `192.168.13.0:/shared  /shared  nfs  rw,noatime,hard,intr,vers=3  0 0`
+Add line to `/etc/fstab`: `192.168.13.13:/shared  /shared  nfs  rw,noatime,hard,intr,vers=3  0 0`
 
 ```bash
 nano /etc/fstab
@@ -286,7 +286,7 @@ ls /shared/text.txt
 Complete this just like how we did on node0  
 
 ```text
-192.168.13.0	node0
+192.168.13.13	node0
 192.168.13.1	node1
 192.168.13.2	node2
 192.168.13.3	node3
