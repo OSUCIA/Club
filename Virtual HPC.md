@@ -164,7 +164,7 @@ Now we need to configure the "VM only" adapter to talk to all of the other machi
     ```
     
     Make your changes and press ctrl-x, press y to save your changes, and press enter to keep the same filename.  
-    We also need to update nsf to use these new settings. We do this by `export`ing the settings. The `ra` flags tell it to update all of its settings, and remove any invalid kernels and do generaly cleanup.
+    We also need to update nfs to use these new settings. We do this by `export`ing the settings. The `ra` flags tell it reexport all directories, rather than just some specific ones.
     
     ```bash
     sudo exportfs -ra
@@ -251,7 +251,7 @@ To do this we'll `ping` the master node, if the master node responds we're good 
 ping 192.168.13.13
 ```
 
-### Mount the folder we shared with nsf
+### Mount the folder we shared with nfs
 
 We need to get access to that shared folder on all of the virtual machines, so first we **m**a**k**e the **dir**ectory on this machine, then we `mount` the directory from the master node. This will keep this folder the same across all of the nodes.
 
