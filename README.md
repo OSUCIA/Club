@@ -6,8 +6,7 @@
 
 &nbsp;  
 
-## If you're interested in our February 2nd Virtual Cluster Session,
-### visit the "Virtual HPC" tab at the top of the page.
+## Join us at our next general meeting: Wednesday, February 8 at 4 p.m. in 445 MSCS (Math Sciences). 
 
 &nbsp;
 
