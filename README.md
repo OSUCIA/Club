@@ -7,7 +7,7 @@
 &nbsp;  
 
 ## Join us at our next general meeting: 
-## Wednesday, February 8 at 4 p.m. in 445 MSCS (Math Sciences). 
+## Wednesday, February 22 at 4 p.m. in 445 MSCS (Math Sciences). 
 
 &nbsp;
 
