@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "First General Meeting"
+title:  "Fourth General Meeting"
 date:   2017-02-08 18:00:00
 excerpt: "Announcements, determined focus for the semester, discussed funding and outreach"
 ---
