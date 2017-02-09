@@ -13,11 +13,17 @@ Unzip the zip file.
 
 ### Prerequisites
 
-#### Desktop or laptop with 
+#### For the initial 2 VMs in this exercise 
 
   * An Intel-compatible processor with 2 or more cores
   * At least 4 GB RAM
   * At least 20 GB free disk space
+
+#### For additional VMs you should expect to need
+  
+  * 1 more CPU core
+  * Slightly over 1GB ram
+  * Slightly over 9GB disk space
 
 #### Download Lubuntu (16.04, 64-bit version)  
 
@@ -345,8 +351,8 @@ From this point forward we can do everything from the master node, `node0`.
     We'll do this by using `wget` to download the files from a url.  
     
     ```bash
-    wget https://github.com/OSU-HPCC/example_submission_scripts/raw/master/compiling_and_running/mpi/makefile
-    wget https://github.com/OSU-HPCC/example_submission_scripts/raw/master/compiling_and_running/mpi/hello_world_mpi.c
+    wget https://raw.githubusercontent.com/OSU-HPCC/example_submission_scripts/master/compiling_and_running/mpi/makefile
+    wget https://raw.githubusercontent.com/OSU-HPCC/example_submission_scripts/master/compiling_and_running/mpi/hello_world_mpi.c
     ```
  5. Use the program `make` to automatically compile the files your just downloaded.  
  
@@ -508,28 +514,255 @@ mpirun -np 2 -hosts node0,node1 bin/sph.out
 
 #### Mouse and xbox controller are working but menu (sometimes?) doesn’t appear when hitting start button on xbox controller. Esc key on keyboard works. Move cursor over the Terminal option and hit the A key on either the keyboard or xbox controller to exit. The L key toggles between liquid and particle view (which color codes the individual threads).
 
+# Extras
 
-# Notes
+This stuff isn't needed for the cluster to function, but you might be interested in doing it.
 
-Same /etc/hosts file on all nodes  
-Same user (with same UID) on all nodes  
-Passwordless ssh  
-Choose to either setup nfs server or synchronize home directories of all nodes  
-Install mpi and other stuff  
+### Passwordless sudo  
 
-Ip forwarding on master node  
-
-https://jetcracker.wordpress.com/2012/03/01/how-to-install-mpi-in-ubuntu/  
-libcr-dev mpich2 mpich2-doc  
-
-Create internal network (call it “Cluster”)  
-
-To make sudo not require a password:  
+Run sudo commands while logged in as pi without being prompted for a password.
 
 ```bash
 sudo echo “pi ALL=(ALL) NOPASSWD: ALL” > /etc/sudoers.d/pi_nopasswd
 ```  
 
+### No GUI
+
+Prevent the GUI from running when the computer is turned on (highly recommended for slave nodes)  
+
+```bash
+sudo systemctl set-default multi-user.target
+```  
+
+You may find that you need the GUI to run something. To start it manually run either of these:
+
+```bash
+sudo systemctl start lightdm.service
+```  
+
+or  
+
+```bash
+startx
+```
+
+If you decide that you want to start the GUI automatically again, run this
+
+```bash
+sudo systemctl set-default graphical.target
+```
+
+### Route through the master node
+
+On a real system this is how you would network it properly. The difference with our system as done above is that each node has its own connection directly to the internet, which is not feasible with physical computers.  
+
+ 1. On the slave node(s), add Google's public DNS server to DNS resolver list. 
+    
+    Since /etc/resolv.conf is managed dynamically on Lubuntu, you'll have to add it to one of the resolveconf config files.
+    
+    ```bash
+    sudo sh -c "echo nameserver 8.8.8.8 >> /etc/resolveconf/resolv.conf.d/tail"
+    ```
+    
+ 2. Shutdown the slave node
+    
+    ```bash
+    sudo shutdown -h now
+    ```
+    
+ 3. Remove the NAT adapter from through the VirtualBox settings
+    
+    ```text
+    Select the node in VirtualBox.
+    Click the Machine menu → Settings.
+    Click Network.
+    Uncheck "Enable Network Adapter" for Adapter 1, then click OK.
+    ```
+    
+Now we configure the master node to act like a router  
+ 1. Install netfilter-persistent. This allows you to easily make iptables rules permanent without having to modify any scripts.
+    
+    ```bash
+    sudo apt-get install netfilter-persistent
+    ```
+ 
+ 2. Setup iptables rules. 
+    
+    In the rules shown here, enp0s8 is the interface on the private cluster network and enp0s3 is the interface with internet access.
+    We want to change the source address of connections from the slave nodes so that they appear to come from the master node.
+    
+    ```bash
+    sudo iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+    ```
+    
+    Forward anything from the cluster interface to the internet interface  
+    
+    ```bash
+    sudo iptables -A FORWARD -i enp0s8 -o enp0s3 -j ACCEPT
+    ```
+    
+    Forward incoming replies back out to the cluster network.  
+    
+    ```bash
+    sudo iptables -A FORWARD -i enp0s3 -o enp0s8 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    ```
+ 
+ 3. Save the iptables rules
+    
+    ```bash
+    sudo netfilter-persistent save
+    ```
+   
+ 4. Reload all the rules
+    
+    ```bash
+    sudo netfilter-persistent reload
+    ```
+    
+ 5. Set the kernel flag to allow IP forwarding
+    
+    Open /etc/sysctl.conf for editing with your preferred text editor
+    
+    ```bash
+    sudo nano /etc/sysctl.conf
+    ```
+   
+    Uncomment the following line:
+    
+    ```text
+    net.ipv4.ip_forward=1
+    ```
+   
+   Save changes and exit the text editor. In nano `ctrl-x`, `y`, `enter`.
+   
+ 6. Reprocess /etc/sysctl.conf to make the change effective
+   
+   ```bash
+   sudo sysctl -p /etc/sysctl.conf
+   ```
+   
+Now go back to the slave node(s) for testing.  
+
+Check to see what interfaces are active:
+
+```bash
+ifconfig
+```
+
+You should only see `enp0s8` and `lo` (which is the loopback address). If you see `enp0s3` then you didn't remove the NAT network adapter - you will be able to conenct to the internet, but it will be through the same system as in the original instructions.  
+
+Check /etc/resolv.conf and verify that it has Google's DNS server 8.8.8.8. It should be the only nameserver.  
+
+```bash
+cat /etc/resolv.conf
+```
+
+Try communicating with the outside world and verify that it works.  
+
+```bash
+ping -c 4 google.com
+```
+
+You should recieve packets back.  
+
+For more info on setting up NAT addressing, [click here](http://netfilter.org/documentation/HOWTO/NAT-HOWTO.html).
+
+### Expansion by cloning
+
+To expand the number on nodes by cloning previous nodes (and reducing the number of steps for the new node) follow this, substituting 2's for whatever number of node you're making.
+
+Make sure node1 is powered off.  
+
+```text
+Select node1 in VirtualBox and click the Machine menu → Clone.  
+Enter node2 (or some other number) as the new name and choose to reinitialize MAC address of all network cards.  
+Choose "Linked Clone". Instead of using the full space of the disk image, the new VM's disk image will only contain the difference between it and node1.  
+```
+
+Start the new node and login as the user `pi`.
+
+Change the hostname from node1 to node2 using your preferred text editor.
+
+```bash
+sudo nano /etc/hostname
+```
+
+Change the IP address to node2's IP.
+
+```bash
+sudo nmcli c modify id cluster ipv4.address 192.168.13.2/24
+```
+
+**For node 3 it would be 192.168.13.3/24, and so on for other nodes.**
+
+Restart the cluster connection.
+
+```bash
+sudo nmcli c down id cluster
+sudo nmcli c up id cluster
+```
+
+Make sure the cluster interface came up with the new IP address.
+
+```bash
+ifconfig
+```
+
+You should see the IP you entered two steps before this.
+
+And make sure it's working.
+
+```bash
+ping node0
+```
+
+Remove existing host keys.
+
+```bash
+sudo rm /etc/ssh/ssh_host_*
+```
+
+Generate new host keys
+
+```bash
+sudo dpkg-reconfigure openssh-server
+```
+
+Restart
+
+```bash
+sudo reboot
+```
+
+From the master node, add the slave node's host key to your known_hosts file.
+
+```bash
+ssh-keyscan -t rsa node2 >> ~/.ssh/known_hosts
+```
+
+Test to make sure you can ssh from the master node to node2 without a password.
+
+```bash
+ssh node2
+```
+
+You can now start node1 again; all nodes should be able to ping each other.
+
+
+# Notes
+
+The basics of a Beowulf-type cluster: 
+ * Same /etc/hosts file on all nodes  
+ * Same user (with same UID) on all nodes  
+ * Passwordless ssh  
+ * Choose to either setup nfs server or synchronize home directories of all nodes  
+ * Install mpi and other stuff  
+
+
 Network config options:
- 1.	Each VM has both NAT and internal network connections (simpler)
- 2.	Only master node has NAT; all VMs have internal network and route through master node (like HPCC’s Raspberry Pi cluster)
+ 1. Each VM has both NAT and internal network connections (simpler, as done in basic instructions)
+ 2. Only master node has NAT; all VMs have internal network and route through master node (like HPCC’s Raspberry Pi cluster, steps to
+    do this are in the extras section)
+
+
+Since the user pi is the first and only user and is created during linux installation, we know it will have the same UID number on the master and slaves. This UID number should be "1000". This can be verified with the command "id -u". On systems that have already been setup, you'll need to verify that your cluster user has the same UID on all nodes or create a new user with an explicitly assigned UID instead of letting the system choose.
