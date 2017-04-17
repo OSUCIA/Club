@@ -7,7 +7,12 @@
 &nbsp;  
 
 ## Join us at our next general meeting: 
-## Wednesday, April 5 at 4 p.m. in 445 MSCS (Math Sciences). 
+## Wednesday, April 19 at 4 p.m. in 445 MSCS (Math Sciences).
+## Elections will be held for the following positions for the 2017-2018 academic year:
+ * President
+ * Vice-President
+ * Secretary
+ * Treasurer
 
 &nbsp;
 
