@@ -7,7 +7,7 @@
 &nbsp;  
 
 ## Join us at our first general meeting: 
-## Friday, September 8th at 4:30 p.m. in 409 MSCS (Math Sciences & Computer Sciences).
+## Friday, September 8th at 4:30 p.m. in 509 MSCS (Math Sciences & Computer Sciences).
 
 &nbsp;
 
